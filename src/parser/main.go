@@ -11,6 +11,38 @@ type Rule struct {
 	Text string
 }
 
+type Keyword struct {
+	Title string
+	Text  string
+}
+
+func parseKeywords(input string) []Keyword {
+	re := regexp.MustCompile(`(?<keyword>[^\n]+)\n(?<text>.+)`)
+
+	matches := re.FindAllStringSubmatch(input, -1)
+
+	names := re.SubexpNames()
+
+	var keywords []Keyword
+
+	for _, match := range matches {
+		result := make(map[string]string)
+		for i, name := range names {
+			if i != 0 && name != "" {
+				result[name] = match[i]
+			}
+		}
+
+		keyword := Keyword{
+			Title: result["keyword"],
+			Text:  result["text"],
+		}
+		keywords = append(keywords, keyword)
+	}
+
+	return keywords
+}
+
 func parseRules(text string) []Rule {
 	var rules []Rule
 
@@ -47,14 +79,15 @@ func parseRules(text string) []Rule {
 	return rules
 }
 
-func parse_file(path string) ([]Rule, error) {
+func parse_file(path string) ([]Rule, []Keyword, error) {
 	f, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	st := strings.Split(string(f), "Glossary")
 
 	rules := parseRules(st[1])
+	keywords := parseKeywords(st[2])
 
-	return rules, nil
+	return rules, keywords, nil
 }

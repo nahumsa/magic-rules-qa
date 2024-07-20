@@ -43,9 +43,53 @@ Example: A commander that’s been turned face down (due to Ixidron’s effect, 
 		},
 	}
 
-	for i := range rules {
+	for i := range expected_rules {
 		if rules[i] != expected_rules[i] {
 			t.Errorf("expected=%q, got=%q", expected_rules[i], rules[i])
+		}
+	}
+}
+
+func TestKeywordParser(t *testing.T) {
+	example := `Vigilance
+A keyword ability that lets a creature attack without tapping. See rule 702.20, “Vigilance.”
+
+Visit
+A keyword ability found on Attraction cards. It provides an effect whenever you roll to visit your attractions and get certain results. See rule 702.159, “Visit.”
+
+Vote
+Some cards instruct players to vote from among given options. See rule 701.32, “Vote.”
+
+Walker Token
+A Walker token is a 2/2 black Zombie creature token named Walker. For more information on predefined tokens, see rule 111.10.
+`
+	keywords := parseKeywords(example)
+
+	if len(keywords) != 4 {
+		t.Errorf("expected 4 keywords, got=%d", len(keywords))
+	}
+	expected_kws := []Keyword{
+		{
+			Title: "Vigilance",
+			Text:  "A keyword ability that lets a creature attack without tapping. See rule 702.20, “Vigilance.”",
+		},
+		{
+			Title: "Visit",
+			Text:  "A keyword ability found on Attraction cards. It provides an effect whenever you roll to visit your attractions and get certain results. See rule 702.159, “Visit.”",
+		},
+		{
+			Title: "Vote",
+			Text:  "Some cards instruct players to vote from among given options. See rule 701.32, “Vote.”",
+		},
+		{
+			Title: "Walker Token",
+			Text:  "A Walker token is a 2/2 black Zombie creature token named Walker. For more information on predefined tokens, see rule 111.10.",
+		},
+	}
+
+	for i := range expected_kws {
+		if keywords[i] != expected_kws[i] {
+			t.Errorf("expected=%q, got=%q", expected_kws[i], keywords[i])
 		}
 	}
 }
