@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"magic-rules-qa/parser"
 	"net/url"
 	"os"
 
-	"github.com/tmc/langchaingo/documentloaders"
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/embeddings/jina"
 	"github.com/tmc/langchaingo/schema"
-	"github.com/tmc/langchaingo/textsplitter"
 	"github.com/tmc/langchaingo/vectorstores/qdrant"
 )
 
@@ -45,21 +44,21 @@ func create_vectorstore() (qdrant.Store, error) {
 }
 
 func load_docs() ([]schema.Document, error) {
-	f, err := os.Open("../data/MagicCompRules_20240607.txt")
+	var docs []schema.Document
+
+	rule, _, err := parser.ParseFile("../data/MagicCompRules_20240607.txt")
 	if err != nil {
-		fmt.Println("Error opening file: ", err)
+		fmt.Println("error parsing files", err)
 	}
 
-	p := documentloaders.NewText(f)
-
-	split := textsplitter.NewRecursiveCharacter()
-	split.ChunkSize = 301
-	split.ChunkOverlap = 0
-
-	docs, err := p.LoadAndSplit(context.Background(), split)
-	if err != nil {
-		fmt.Println("Error loading document: ", err)
+	for _, v := range rule {
+		docs = append(docs, schema.Document{PageContent: v.Text, Metadata: map[string]any{"code": v.Code}})
 	}
+
+	// for _, v := range keywords {
+	// 	docs = append(docs, schema.Document{PageContent: v.Text, Metadata: map[string]any{"keyword": v.Title}})
+	// }
+	//
 
 	log.Println("Documents split: ", len(docs))
 
@@ -73,12 +72,10 @@ func load_documents_to_db(ctx context.Context, store qdrant.Store) {
 	}
 
 	// log.Println("loading documents on the database")
-	doc, err := store.AddDocuments(context.Background(), instert_docs)
+	_, err = store.AddDocuments(context.Background(), instert_docs)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	log.Println(doc)
 }
 
 func main() {
@@ -91,11 +88,12 @@ func main() {
 
 	// load_documents_to_db(ctx, store)
 
-	docs, err := store.SimilaritySearch(ctx, "damage", 5)
+	docs, err := store.SimilaritySearch(ctx, "What's Brawl?", 5)
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, d := range docs {
+		log.Println(d.Metadata)
 		log.Println(d.PageContent)
 		log.Println(d.Score)
 	}

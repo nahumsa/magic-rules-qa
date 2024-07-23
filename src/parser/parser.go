@@ -46,7 +46,7 @@ func parseKeywords(input string) []Keyword {
 func parseRules(text string) []Rule {
 	var rules []Rule
 
-	ruleRegex := regexp.MustCompile(`^(\d+\.\d+[a-z.]*|\d+.)\s(.+)`)
+	ruleRegex := regexp.MustCompile(`^(\d+\.\d+[a-z.]*|\d+\.)\s(.+)`)
 
 	lines := strings.Split(text, "\n")
 
@@ -72,6 +72,7 @@ func parseRules(text string) []Rule {
 			}
 		}
 	}
+
 	if currentRule.Code != "" {
 		rules = append(rules, currentRule)
 	}
@@ -79,7 +80,7 @@ func parseRules(text string) []Rule {
 	return rules
 }
 
-func parse_file(path string) ([]Rule, []Keyword, error) {
+func ParseFile(path string) ([]Rule, []Keyword, error) {
 	f, err := os.ReadFile(path)
 	if err != nil {
 		return nil, nil, err
