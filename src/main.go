@@ -45,6 +45,7 @@ func create_vectorstore() (qdrant.Store, error) {
 
 func load_docs() ([]schema.Document, error) {
 	var docs []schema.Document
+	var formated_str string
 
 	rule, _, err := parser.ParseFile("../data/MagicCompRules_20240607.txt")
 	if err != nil {
@@ -52,13 +53,8 @@ func load_docs() ([]schema.Document, error) {
 	}
 
 	for _, v := range rule {
-		docs = append(docs, schema.Document{PageContent: v.Text, Metadata: map[string]any{"code": v.Code}})
+		docs = append(docs, schema.Document{PageContent: formated_str, Metadata: map[string]any{"code": v.Code}})
 	}
-
-	// for _, v := range keywords {
-	// 	docs = append(docs, schema.Document{PageContent: v.Text, Metadata: map[string]any{"keyword": v.Title}})
-	// }
-	//
 
 	log.Println("Documents split: ", len(docs))
 
@@ -72,7 +68,7 @@ func load_documents_to_db(ctx context.Context, store qdrant.Store) {
 	}
 
 	// log.Println("loading documents on the database")
-	_, err = store.AddDocuments(context.Background(), instert_docs)
+	_, err = store.AddDocuments(ctx, instert_docs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -86,9 +82,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// load_documents_to_db(ctx, store)
+	load_documents_to_db(ctx, store)
 
-	docs, err := store.SimilaritySearch(ctx, "What's Brawl?", 5)
+	docs, err := store.SimilaritySearch(ctx, "Which are the types of mana?", 5)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -43,10 +43,10 @@ func parseKeywords(input string) []Keyword {
 	return keywords
 }
 
-func parseRules(text string) []Rule {
+func parseMainRules(text string) []Rule {
 	var rules []Rule
 
-	ruleRegex := regexp.MustCompile(`^(\d+\.\d+[a-z.]*|\d+\.)\s(.+)`)
+	ruleRegex := regexp.MustCompile(`^(\d+\.)\s(.+)`)
 
 	lines := strings.Split(text, "\n")
 
@@ -87,7 +87,7 @@ func ParseFile(path string) ([]Rule, []Keyword, error) {
 	}
 	st := strings.Split(string(f), "Glossary")
 
-	rules := parseRules(st[1])
+	rules := parseMainRules(st[1])
 	keywords := parseKeywords(st[2])
 
 	return rules, keywords, nil
