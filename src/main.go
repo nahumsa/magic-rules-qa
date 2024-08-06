@@ -19,7 +19,7 @@ func create_vectorstore() (qdrant.Store, error) {
 		fmt.Errorf("JINA_API_KEY not set")
 	}
 
-	j, err := jina.NewJina()
+	j, err := jina.NewJina(jina.WithModel("jina-embeddings-v2-base-en"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,7 +45,6 @@ func create_vectorstore() (qdrant.Store, error) {
 
 func load_docs() ([]schema.Document, error) {
 	var docs []schema.Document
-	var formated_str string
 
 	rule, _, err := parser.ParseFile("../data/MagicCompRules_20240607.txt")
 	if err != nil {
@@ -53,7 +52,7 @@ func load_docs() ([]schema.Document, error) {
 	}
 
 	for _, v := range rule {
-		docs = append(docs, schema.Document{PageContent: formated_str, Metadata: map[string]any{"code": v.Code}})
+		docs = append(docs, schema.Document{PageContent: v.Text, Metadata: map[string]any{"code": v.Code}})
 	}
 
 	log.Println("Documents split: ", len(docs))
@@ -62,13 +61,13 @@ func load_docs() ([]schema.Document, error) {
 }
 
 func load_documents_to_db(ctx context.Context, store qdrant.Store) {
-	instert_docs, err := load_docs()
+	inserted_docs, err := load_docs()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// log.Println("loading documents on the database")
-	_, err = store.AddDocuments(ctx, instert_docs)
+	log.Println("loading documents on the database")
+	_, err = store.AddDocuments(ctx, inserted_docs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,7 +83,7 @@ func main() {
 
 	load_documents_to_db(ctx, store)
 
-	docs, err := store.SimilaritySearch(ctx, "Which are the types of mana?", 5)
+	docs, err := store.SimilaritySearch(ctx, "What happens when I saddle a creature?", 5)
 	if err != nil {
 		log.Fatal(err)
 	}
