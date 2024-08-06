@@ -80,7 +80,44 @@ func parseMainRules(text string) []Rule {
 	return rules
 }
 
+func parseSubRules(text string) []Rule {
+	var rules []Rule
+	ruleRegex := regexp.MustCompile(`^(\d+\.\d+\.)\s(.+)`)
+
+	lines := strings.Split(text, "\n")
+
+	var currentRule Rule
+
+	for _, line := range lines {
+		match := ruleRegex.FindStringSubmatch(line)
+		if len(match) == 3 {
+			ruleNumber := match[1]
+			ruleText := match[2]
+
+			if currentRule.Code != "" {
+				rules = append(rules, currentRule)
+			}
+
+			currentRule = Rule{
+				Code: ruleNumber,
+				Text: ruleText,
+			}
+		} else {
+			if currentRule.Code != "" {
+				currentRule.Text += "\n" + line
+			}
+		}
+	}
+
+	if currentRule.Code != "" {
+		rules = append(rules, currentRule)
+	}
+
+	return rules
+}
+
 func ParseFile(path string) ([]Rule, []Keyword, error) {
+	var subRules []Rule
 	f, err := os.ReadFile(path)
 	if err != nil {
 		return nil, nil, err
@@ -88,7 +125,12 @@ func ParseFile(path string) ([]Rule, []Keyword, error) {
 	st := strings.Split(string(f), "Glossary")
 
 	rules := parseMainRules(st[1])
+
+	for _, v := range rules {
+		subRules = append(subRules, parseSubRules(v.Text)...)
+	}
+
 	keywords := parseKeywords(st[2])
 
-	return rules, keywords, nil
+	return subRules, keywords, nil
 }
