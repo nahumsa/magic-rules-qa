@@ -5,45 +5,13 @@ import (
 	"fmt"
 	"log"
 	"magic-rules-qa/parser"
-	"net/url"
-	"os"
+	"magic-rules-qa/vectorstore"
 
-	"github.com/tmc/langchaingo/embeddings"
-	"github.com/tmc/langchaingo/embeddings/jina"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores/qdrant"
 )
 
-func create_vectorstore() (qdrant.Store, error) {
-	if jinakey := os.Getenv("JINA_API_KEY"); jinakey == "" {
-		fmt.Errorf("JINA_API_KEY not set")
-	}
-
-	j, err := jina.NewJina(jina.WithModel("jina-embeddings-v2-base-en"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	e, err := embeddings.NewEmbedder(j)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	url, err := url.Parse("http://localhost:6333")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	store, err := qdrant.New(
-		qdrant.WithURL(*url),
-		qdrant.WithCollectionName("magic-qa"),
-		qdrant.WithEmbedder(e),
-	)
-
-	return store, nil
-}
-
-func load_docs() ([]schema.Document, error) {
+func getParsedDocuments() ([]schema.Document, error) {
 	var docs []schema.Document
 
 	rule, _, err := parser.ParseFile("../data/MagicCompRules_20240607.txt")
@@ -60,14 +28,9 @@ func load_docs() ([]schema.Document, error) {
 	return docs, nil
 }
 
-func load_documents_to_db(ctx context.Context, store qdrant.Store) {
-	inserted_docs, err := load_docs()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func loadDocuments(ctx context.Context, store qdrant.Store, documents []schema.Document) {
 	log.Println("loading documents on the database")
-	_, err = store.AddDocuments(ctx, inserted_docs)
+	_, err := store.AddDocuments(ctx, documents)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,14 +39,19 @@ func load_documents_to_db(ctx context.Context, store qdrant.Store) {
 func main() {
 	ctx := context.Background()
 
-	store, err := create_vectorstore()
+	store, err := vectorstore.NewQdrant()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	load_documents_to_db(ctx, store)
+	docs, err := getParsedDocuments()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	docs, err := store.SimilaritySearch(ctx, "What happens when I saddle a creature?", 5)
+	loadDocuments(ctx, store, docs)
+
+	docs, err = store.SimilaritySearch(ctx, "What happens when I saddle a creature?", 5)
 	if err != nil {
 		log.Fatal(err)
 	}
