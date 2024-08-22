@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"magic-rules-qa/prompts"
 	"magic-rules-qa/vectorstore"
 	"os"
 
@@ -37,8 +38,8 @@ func Search() *cobra.Command {
 			}
 
 			content := []llms.MessageContent{
-				llms.TextParts(llms.ChatMessageTypeSystem, "You are an expert in Magic: The Gathering"),
-				llms.TextParts(llms.ChatMessageTypeHuman, "Given the following rule: %s Answer the question: %s. Respond only 'I only know about Magic: The Gathering Rules' when it's out of context", docs[0].PageContent, args[0]),
+				llms.TextParts(llms.ChatMessageTypeSystem, prompts.SystemPrompt),
+				llms.TextParts(llms.ChatMessageTypeHuman, prompts.ChatTemplate, docs[0].PageContent, args[0]),
 			}
 
 			completion, err := llm.GenerateContent(ctx, content, llms.WithStreamingFunc(func(ctx context.Context, chunk []byte) error {
