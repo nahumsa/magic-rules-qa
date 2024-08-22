@@ -3,6 +3,8 @@
 Welcome to the **Q&A with Magic: The Gathering Rules** project! This tool is designed to help Magic: The Gathering (MTG) players quickly find accurate answers to rules-related questions.
 Whether you're a beginner or a seasoned player, this project aims to make navigating the complex rules of MTG easier and more intuitive.
 
+![terminal](./assets/magic-qa.gif)
+
 ## Features
 
 ### Completed
