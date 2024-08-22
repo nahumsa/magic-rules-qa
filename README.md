@@ -11,11 +11,11 @@ Whether you're a beginner or a seasoned player, this project aims to make naviga
 - **Search Functionality:** Use keywords or phrases to find relevant rules and explanations.
 - **Vector Search:** Utilize vector search technology to quickly retrieve and rank the most relevant information from the rules database.
 - **Regular Updates:** Stay up to date with the latest rules changes and errata from Wizards of the Coast.
+- **GenAI Integration:** Leverage GenAI for advanced natural language understanding to enhance the accuracy and relevance of responses.
 
 ### In progress
 
 - **Instant Q&A:** Get immediate answers to specific questions by querying the rules database.
-- **GenAI Integration:** Leverage GenAI for advanced natural language understanding to enhance the accuracy and relevance of responses.
 - **User-Friendly Interface:** Clean and intuitive design for easy navigation and interaction.
 
 ## Getting Started
@@ -32,4 +32,5 @@ To run this project, you'll need:
 
 | Variable Name  | Description                                                  | Example Value               |
 |----------------|--------------------------------------------------------------|-----------------------------|
-| `JINA_API_KEY` | API key for jina.ai                                          | `jina_naiasokdlnmasnd123ln` |
+| `JINA_API_KEY`   | API key for jina.ai                                          | `jina_naiasokdlnmasnd123ln` |
+| `GOOGLE_API_KEY` | API key Google Gemini                                          | `asinodnoiansd12po3i2` |
