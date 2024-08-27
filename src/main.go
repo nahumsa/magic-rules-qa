@@ -10,5 +10,6 @@ func main() {
 	rootCmd := &cobra.Command{}
 	rootCmd.AddCommand(cmd.Ingestion())
 	rootCmd.AddCommand(cmd.Search())
+	rootCmd.AddCommand(cmd.Validation())
 	rootCmd.Execute()
 }

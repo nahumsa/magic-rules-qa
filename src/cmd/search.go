@@ -15,8 +15,8 @@ import (
 
 func Search() *cobra.Command {
 	return &cobra.Command{
-		Use:   "search for a phrase",
-		Short: "Search for a given phrase",
+		Use:   "run validation for retrieval",
+		Short: "Validation for retrieval from database",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.Background()
